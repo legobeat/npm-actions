@@ -1,8 +1,11 @@
 name: 'Node package integration-testing'
 description: 'Installs your package from a locally cached Verdaccio registry'
 author: 'MetaMask'
+inputs:
+  node-version:
+    descripton: 'Node.js version to use'
 runs:
   using: docker
-  image: Dockerfile
+  image: Dockerfile-${{ inputs.node-version }}
   env:
     VERDACCIO_STORAGE_PATH: /github/home/registry-data
