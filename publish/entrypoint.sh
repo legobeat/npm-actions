@@ -5,7 +5,7 @@ set -ex
 export local_registry="http://127.0.0.1:4873"
 export pkg_name=$(jq -r .name ./package.json)
 export pkg_scope=$(echo $pkg_name | grep -o '^@[^/]*'; true)
-export VERDACCIO_STORAGE_PATH=$(yarn config get cacheFolder)/_verdaccio/
+export VERDACCIO_STORAGE_PATH=${VERDACCIO_STORAGE_PATH:-$(yarn config get cacheFolder)/_verdaccio/}
 yarn_version=$(jq '.packageManager|select(test("yarn@"))' package.json -r | cut -d@ -f2); true
 
 # start local registry
