@@ -5,25 +5,17 @@ set -ex
 export local_registry="http://127.0.0.1:4873"
 export pkg_name=$(jq -r .name ./package.json)
 export pkg_scope=$(echo $pkg_name | grep -o '^@[^/]*'; true)
+export VERDACCIO_STORAGE_PATH=$(yarn config get cacheFolder)/_verdaccio/
+yarn_version=$(jq '.packageManager|select(test("yarn@"))' package.json -r | cut -d@ -f2); true
 
 # start local registry
 mkdir -p $HOME/.config/verdaccio
-cat /verdaccio-config.yaml.tmpl | envsubst '$pkg_name,$local_registry' | tee $HOME/.config/verdaccio/config.yaml
+cat /verdaccio-config.yaml.tmpl | envsubst '$local_registry,$pkg_name,$storage_dir' | tee $HOME/.config/verdaccio/config.yaml
 tmp_registry_log=`mktemp`
 sh -c "nohup verdaccio --config $HOME/.config/verdaccio/config.yaml &>$tmp_registry_log &"
 
-# wait for `verdaccio` to boot
-#bash -c "grep -q 'http address' <(tail -F $tmp_registry_log)"
-#tail -s 1 -F $tmp_registry_log | grep --line-buffered -q 'http address'
-tail -s 1 -F $tmp_registry_log | grep -q 'http address'
+##### Prepare package manager for publish
 
-npm set registry $local_registry
-[[ -z "${pkg_scope}" ]] || npm config set ${pkg_scope}:registry $local_registry ; true
-
-# login so we can publish packages
-sh -c "npm-auth-to-token -u test -p test -e test@test.com -r $local_registry"
-
-yarn_version=$(jq '.packageManager|select(test("yarn@"))' package.json -r | cut -d@ -f2); true
 if [[ $(echo $yarn_version|cut -d. -f1) -gt "2" ]]; then
   corepack enable
   corepack prepare yarn@${yarn_version} --activate
@@ -32,6 +24,15 @@ if [[ $(echo $yarn_version|cut -d. -f1) -gt "2" ]]; then
 else
   npm ci
 fi
+
+####
+# wait for `verdaccio` to boot
+tail -s 1 -F $tmp_registry_log | grep -q 'http address'
+
+npm set registry $local_registry
+[[ -z "${pkg_scope}" ]] || npm config set ${pkg_scope}:registry $local_registry ; true
+# login so we can publish packages
+sh -c "npm-auth-to-token -u test -p test -e test@test.com -r $local_registry"
 
 ### Publish
 npm publish --registry $local_registry $NPM_PUBLISH_ARGS
