@@ -2,11 +2,13 @@ name: 'Verdaccio Publish Action v2'
 description: 'This action will deploy your package to Verdaccio Registry'
 author: 'GitHub'
 inputs:
-  debug:
-    description: 'npm debug level'
-    default: '-ddd'
+  npm-publish-args:
+    description: 'extra arguments passed to npm publish'
+    default: '-dd'
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.debug }}
+    -
+  env:
+    NPM_PUBLISH_ARGS: ${{ inputs.npm-publish-args }}

@@ -1,18 +1,38 @@
 #!/bin/sh
 
-set -e
+set -ex
 
-local_registry="http://0.0.0.0:4873"
+export local_registry="http://127.0.0.1:4873"
+export pkg_name=$(jq -r .name ./package.json)
+export pkg_scope=$(echo $pkg_name | grep -o '^@[^/]*'; true)
+export VERDACCIO_STORAGE_PATH=$(yarn config get cacheFolder)/_verdaccio/
+yarn_version=$(jq '.packageManager|select(test("yarn@"))' package.json -r | cut -d@ -f2); true
 
 # start local registry
+mkdir -p $HOME/.config/verdaccio
+cat /verdaccio-config.yaml.tmpl | envsubst '$local_registry,$pkg_name,$storage_dir' | tee $HOME/.config/verdaccio/config.yaml
 tmp_registry_log=`mktemp`
-sh -c "mkdir -p $HOME/.config/verdaccio"
-sh -c "cp --verbose /config.yaml $HOME/.config/verdaccio/config.yaml"
 sh -c "nohup verdaccio --config $HOME/.config/verdaccio/config.yaml &>$tmp_registry_log &"
+
+##### Prepare package manager for publish
+
+if [[ $(echo $yarn_version|cut -d. -f1) -gt "2" ]]; then
+  corepack enable
+  corepack prepare yarn@${yarn_version} --activate
+  yarn config set --home enableTelemetry 0
+  yarn install
+else
+  npm ci
+fi
+
+####
 # wait for `verdaccio` to boot
-# FIXME: this throws a syntax error, but would be great to make it run
-# grep -q 'http address' <(tail -f $tmp_registry_log)
+tail -s 1 -F $tmp_registry_log | grep -q 'http address'
+
+npm set registry $local_registry
+[[ -z "${pkg_scope}" ]] || npm config set ${pkg_scope}:registry $local_registry ; true
 # login so we can publish packages
 sh -c "npm-auth-to-token -u test -p test -e test@test.com -r $local_registry"
-# Run nmp command
-sh -c "npm publish --registry $local_registry $1"
+
+### Publish
+npm publish --registry $local_registry $NPM_PUBLISH_ARGS
