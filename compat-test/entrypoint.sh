@@ -14,7 +14,7 @@ cat /verdaccio-config.yaml.tmpl | envsubst '$local_registry,$pkg_name,$storage_d
 tmp_registry_log=`mktemp`
 sh -c "nohup verdaccio --config $HOME/.config/verdaccio/config.yaml &>$tmp_registry_log &"
 
-. ~/.nvm/nvm.sh
+. ${NVM_DIR}/nvm.sh
 nvm use $NODE_VERSION
 
 ####
