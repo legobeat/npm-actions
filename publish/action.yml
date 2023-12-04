@@ -18,5 +18,5 @@ container:
   volumes:
     - /tmp/verdaccio-registry-data:/tmp/verdaccio-registry-data
   env:
-    NPM_PUBLISH_ARGS: ${{ inputs.npm-publish-args }}
+    NPM_PUBLISH_ARGS: -dd
     VERDACCIO_STORAGE_PATH: /tmp/verdaccio-registry-data
