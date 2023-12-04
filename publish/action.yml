@@ -5,6 +5,8 @@ inputs:
   npm-publish-args:
     description: 'extra arguments passed to npm publish'
     default: '-dd'
+  registry-path:
+    description: 'Local path of registry directory with published artifacts'
 outputs:
   package-name:
     description: 'Name of published package'
