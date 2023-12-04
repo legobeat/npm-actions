@@ -16,14 +16,11 @@ sh -c "npm set registry $local_registry"
 # login so we can publish packages
 sh -c "npm-auth-to-token -u test -p test -e test@test.com -r $local_registry"
 
-# Specific for yarnv3
 yarn_version=$(jq '.packageManager|select(test("yarn@"))' package.json -r | cut -d@ -f2)
-
 if [[ $(echo $yarn_version|cut -d. -f1) -gt "2" ]]; then
   corepack enable
-  corepack prepare yarn@stable --activate
-  yarn set version ${yarn_version}
-  yarn ci
+  corepack prepare yarn@${yarn_version} --activate
+  yarn install
 else
   npm ci
 fi
