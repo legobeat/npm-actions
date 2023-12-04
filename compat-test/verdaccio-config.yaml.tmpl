@@ -13,13 +13,14 @@ uplinks:
     maxage: 60s
 
 packages:
-  '@*/*':
+  '${pkg_name}':
     access: $all
     publish: $all
+  '@*/*':
+    access: $all
     proxy: npmjs
   '**':
     access: $all
-    publish: $all
     proxy: npmjs
 middlewares:
   audit:
