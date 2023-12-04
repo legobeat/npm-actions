@@ -40,6 +40,6 @@ cd "$HOME/app"
 npm init --yes
 npm set registry "$local_registry"
 npm install "$pkg_name"
-ls "./node_modules/$1/package.json"
+jq '[.name, .version]' "./node_modules/${pkg_name}/package.json"
 
 #sh -c "${@}"
