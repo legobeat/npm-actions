@@ -15,7 +15,7 @@ sh -c "nohup verdaccio --config $HOME/.config/verdaccio/config.yaml &>$tmp_regis
 sh -c "npm set registry $local_registry"
 # login so we can publish packages
 sh -c "npm-auth-to-token -u test -p test -e test@test.com -r $local_registry"
-# Run npm command
+sh -c "yarn ci"
 sh -c "npm publish --registry $local_registry $NPM_PUBLISH_ARGS"
 
 ###
