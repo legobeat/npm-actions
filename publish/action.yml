@@ -13,10 +13,9 @@ outputs:
   registry-path:
     description: 'Local path of registry directory with published artifacts'
 ###
-container:
-  image: 'Dockerfile'
-  volumes:
-    - /tmp/verdaccio-registry-data:/tmp/verdaccio-registry-data
+runs:
+  using: docker
+  image: Dockerfile
   env:
     NPM_PUBLISH_ARGS: -dd
-    VERDACCIO_STORAGE_PATH: /tmp/verdaccio-registry-data
+    VERDACCIO_STORAGE_PATH: /github/home/registry-data
