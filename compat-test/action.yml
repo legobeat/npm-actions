@@ -4,8 +4,11 @@ author: 'MetaMask'
 inputs:
   node-version:
     descripton: 'Node.js version to use'
+    required: false
+    default: lts/*
 runs:
   using: docker
-  image: Dockerfile-${{ inputs.node-version }}
+  image: Dockerfile
   env:
+    NODE_VERSION: ${{ inputs.node-version }}
     VERDACCIO_STORAGE_PATH: /github/home/registry-data

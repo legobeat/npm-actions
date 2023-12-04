@@ -2,9 +2,6 @@
 
 set -ex
 
-echo $VERDACCIO_STORAGE_PATH
-ls -la $VERDACCIO_STORAGE_PATH
-
 export local_registry="http://127.0.0.1:4873"
 export pkg_name=$(jq -r .name ./package.json)
 export pkg_scope=$(echo $pkg_name | grep -o '^@[^/]*'; true)
@@ -17,9 +14,13 @@ cat /verdaccio-config.yaml.tmpl | envsubst '$local_registry,$pkg_name,$storage_d
 tmp_registry_log=`mktemp`
 sh -c "nohup verdaccio --config $HOME/.config/verdaccio/config.yaml &>$tmp_registry_log &"
 
+. ~/.nvm/nvm.sh
+nvm use $NODE_VERSION
+
 ####
 # wait for `verdaccio` to boot
 tail -s 1 -F $tmp_registry_log | grep -q 'http address'
+
 
 if [[ -z "${pkg_scope}" ]]; then
   npm config set registry $local_registry
