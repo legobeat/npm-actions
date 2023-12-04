@@ -25,5 +25,7 @@ packages:
 middlewares:
   audit:
     enabled: true
-logs:
+log:
  - {type: stdout, format: pretty, level: debug}
+listen:
+  - ${local_registry}

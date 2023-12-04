@@ -9,7 +9,7 @@ LABEL "repository"="https://github.com/verdaccio/github-actions"
 LABEL "homepage"="https://github.com/verdaccio/github-actions"
 LABEL "maintainer"="Juan Picado <juanpicado19@gmail.com>"
 
-RUN apk add --no-cache bash curl envsubst git jq wget && \
+RUN apk add --no-cache bash coreutils curl envsubst git grep jq wget && \
     npm install -g verdaccio && \
     npm install -g verdaccio-auth-memory && \
     npm install -g verdaccio-memory && \

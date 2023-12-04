@@ -2,19 +2,20 @@
 
 set -ex
 
-local_registry="http://127.0.0.1:4873"
+export local_registry="http://127.0.0.1:4873"
 export pkg_name=$(jq -r .name ./package.json)
 export pkg_scope=$(echo $pkg_name | grep -o '^@[^/]*'; true)
 
 # start local registry
-tmp_registry_log=`mktemp`
 mkdir -p $HOME/.config/verdaccio
-cat /verdaccio-config.yaml.tmpl | envsubst '$pkg_name' | tee $HOME/.config/verdaccio/config.yaml
+cat /verdaccio-config.yaml.tmpl | envsubst '$pkg_name,$local_registry' | tee $HOME/.config/verdaccio/config.yaml
+tmp_registry_log=`mktemp`
 sh -c "nohup verdaccio --config $HOME/.config/verdaccio/config.yaml &>$tmp_registry_log &"
 
 # wait for `verdaccio` to boot
-# FIXME: this throws a syntax error, but would be great to make it run
-# grep -q 'http address' <(tail -f $tmp_registry_log)
+#bash -c "grep -q 'http address' <(tail -F $tmp_registry_log)"
+#tail -s 1 -F $tmp_registry_log | grep --line-buffered -q 'http address'
+tail -s 1 -F $tmp_registry_log | grep -q 'http address'
 
 npm set registry $local_registry
 [[ -z "${pkg_scope}" ]] || npm config set ${pkg_scope}:registry $local_registry ; true
@@ -26,6 +27,7 @@ yarn_version=$(jq '.packageManager|select(test("yarn@"))' package.json -r | cut 
 if [[ $(echo $yarn_version|cut -d. -f1) -gt "2" ]]; then
   corepack enable
   corepack prepare yarn@${yarn_version} --activate
+  yarn config set --home enableTelemetry 0
   yarn install
 else
   npm ci
