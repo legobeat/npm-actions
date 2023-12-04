@@ -36,7 +36,7 @@ npm publish --registry $local_registry $NPM_PUBLISH_ARGS
 ### NPM
 mkdir "$HOME/app"
 cd "$HOME/app"
-npm init
+npm init --yes
 npm set registry "$local_registry"
 npm install "$pkg_name"
 ls "./node_modules/$1/package.json"
