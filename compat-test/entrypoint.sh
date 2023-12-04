@@ -2,6 +2,9 @@
 
 set -ex
 
+echo $VERDACCIO_STORAGE_PATH
+ls -la $VERDACCIO_STORAGE_PATH
+
 export local_registry="http://127.0.0.1:4873"
 export pkg_name=$(jq -r .name ./package.json)
 export pkg_scope=$(echo $pkg_name | grep -o '^@[^/]*'; true)

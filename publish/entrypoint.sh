@@ -39,3 +39,6 @@ pkg_shasum=$(npm publish --json --registry $local_registry $NPM_PUBLISH_ARGS | j
 echo "package-name=$pkg_name" >> $GITHUB_OUTPUT
 echo "package-shasum=$pkg_shasum" >> $GITHUB_OUTPUT
 echo "registry-path=$VERDACCIO_STORAGE_PATH" >> $GITHUB_OUTPUT
+
+echo $VERDACCIO_STORAGE_PATH
+ls -la $VERDACCIO_STORAGE_PATH
