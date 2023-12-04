@@ -1,14 +1,6 @@
-name: 'Verdaccio Publish Action v2'
-description: 'This action will deploy your package to Verdaccio Registry'
-author: 'GitHub'
-inputs:
-  npm-publish-args:
-    description: 'extra arguments passed to npm publish'
-    default: '-dd'
+name: 'Node package integration-testing'
+description: 'Installs your package from a locally cached Verdaccio registry'
+author: 'MetaMask'
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  args:
-    -
-  env:
-    NPM_PUBLISH_ARGS: ${{ inputs.npm-publish-args }}

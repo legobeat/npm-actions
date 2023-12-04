@@ -35,4 +35,7 @@ npm set registry $local_registry
 sh -c "npm-auth-to-token -u test -p test -e test@test.com -r $local_registry"
 
 ### Publish
-npm publish --registry $local_registry $NPM_PUBLISH_ARGS
+pkg_shasum=$(npm publish --json --registry $local_registry $NPM_PUBLISH_ARGS | jq -r .shasum)
+echo "package-name=$pkg_name" >> $GITHUB_OUTPUT
+echo "package-shasum=$pkg_shasum" >> $GITHUB_OUTPUT
+echo "registry-path=$VERDACCIO_STORAGE_PATH" >> $GITHUB_OUTPUT
