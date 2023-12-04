@@ -12,19 +12,21 @@ sh -c "nohup verdaccio --config $HOME/.config/verdaccio/config.yaml &>$tmp_regis
 # wait for `verdaccio` to boot
 # FIXME: this throws a syntax error, but would be great to make it run
 # grep -q 'http address' <(tail -f $tmp_registry_log)
+sh -c "npm set registry $local_registry"
 # login so we can publish packages
 sh -c "npm-auth-to-token -u test -p test -e test@test.com -r $local_registry"
 # Run npm command
-sh -c "npm publish --registry $local_registry $1"
+sh -c "npm publish --registry $local_registry $NPM_PUBLISH_ARGS"
 
+###
+export pkgname=$(jq -r .name ./package.json)
 
-## NPM
-
+### NPM
 mkdir "$HOME/app"
 cd "$HOME/app"
 npm init
 npm set registry "$local_registry"
-npm install "$1"
+npm install "$pkgname"
 ls "./node_modules/$1/package.json"
 
 #sh -c "${@}"
