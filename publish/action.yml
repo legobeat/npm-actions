@@ -5,8 +5,6 @@ inputs:
   npm-publish-args:
     description: 'extra arguments passed to npm publish'
     default: '-dd'
-  registry-path:
-    description: 'Local path of registry directory with published artifacts'
 outputs:
   package-name:
     description: 'Name of published package'
@@ -15,8 +13,10 @@ outputs:
   registry-path:
     description: 'Local path of registry directory with published artifacts'
 ###
-runs:
-  using: 'docker'
+container:
   image: 'Dockerfile'
+  volumes:
+    - /tmp/verdaccio-registry-data:/tmp/verdaccio-registry-data
   env:
     NPM_PUBLISH_ARGS: ${{ inputs.npm-publish-args }}
+    VERDACCIO_STORAGE_PATH: /tmp/verdaccio-registry-data

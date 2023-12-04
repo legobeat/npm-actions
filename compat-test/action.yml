@@ -1,10 +1,9 @@
 name: 'Node package integration-testing'
 description: 'Installs your package from a locally cached Verdaccio registry'
 author: 'MetaMask'
-inputs:
-  registry-path:
-    description: 'Local path of registry directory with published artifacts'
 container:
   image: 'Dockerfile'
   volumes:
-    - ${{ inputs.registry-path }}:${{ inputs.registry-path }}
+    - /tmp/verdaccio-registry-data:/tmp/verdaccio-registry-data
+  env:
+    VERDACCIO_STORAGE_PATH: /tmp/verdaccio-registry-data
