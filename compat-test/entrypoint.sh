@@ -3,6 +3,8 @@
 set -ex
 
 local_registry="http://127.0.0.1:4873"
+pkg_name=$(jq -r .name ./package.json)
+pkg_scope=$(echo $pkg_name | grep -o '^@[^/]*'; true)
 
 # start local registry
 tmp_registry_log=`mktemp`
@@ -12,11 +14,14 @@ sh -c "nohup verdaccio --config $HOME/.config/verdaccio/config.yaml &>$tmp_regis
 # wait for `verdaccio` to boot
 # FIXME: this throws a syntax error, but would be great to make it run
 # grep -q 'http address' <(tail -f $tmp_registry_log)
-sh -c "npm set registry $local_registry"
+
+npm set registry $local_registry
+[[ -z "${pkg_scope}" ]] || npm config set ${pkg_scope}:registry $local_registry ; true
+
 # login so we can publish packages
 sh -c "npm-auth-to-token -u test -p test -e test@test.com -r $local_registry"
 
-yarn_version=$(jq '.packageManager|select(test("yarn@"))' package.json -r | cut -d@ -f2)
+yarn_version=$(jq '.packageManager|select(test("yarn@"))' package.json -r | cut -d@ -f2); true
 if [[ $(echo $yarn_version|cut -d. -f1) -gt "2" ]]; then
   corepack enable
   corepack prepare yarn@${yarn_version} --activate
@@ -25,17 +30,15 @@ else
   npm ci
 fi
 
-sh -c "npm publish --registry $local_registry $NPM_PUBLISH_ARGS"
-
-###
-export pkgname=$(jq -r .name ./package.json)
+### Publish
+npm publish --registry $local_registry $NPM_PUBLISH_ARGS
 
 ### NPM
 mkdir "$HOME/app"
 cd "$HOME/app"
 npm init
 npm set registry "$local_registry"
-npm install "$pkgname"
+npm install "$pkg_name"
 ls "./node_modules/$1/package.json"
 
 #sh -c "${@}"
